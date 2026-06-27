@@ -1,0 +1,113 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    outputs:
+      owner_lc: ${{ steps.names.outputs.owner_lc }}
+      repo_lc: ${{ steps.names.outputs.repo_lc }}
+      deps_image: ${{ steps.names.outputs.deps_image }}
+      env_image: ${{ steps.names.outputs.env_image }}
+    steps:
+      - name: Prepare image names
+        id: names
+        shell: bash
+        run: |
+          OWNER_LC="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          REPO_LC="$(echo "${REPO_NAME}" | tr '[:upper:]' '[:lower:]')"
+
+          echo "owner_lc=${OWNER_LC}" >> "${GITHUB_OUTPUT}"
+          echo "repo_lc=${REPO_LC}" >> "${GITHUB_OUTPUT}"
+          echo "deps_image=${{ env.REGISTRY }}/${OWNER_LC}/${REPO_LC}-j2me-deps" >> "${GITHUB_OUTPUT}"
+          echo "env_image=${{ env.REGISTRY }}/${OWNER_LC}/${REPO_LC}-j2me-env" >> "${GITHUB_OUTPUT}"
+
+  build-deps:
+    runs-on: ubuntu-24.04
+    needs:
+      - prepare
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract deps metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ needs.prepare.outputs.deps_image }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=sha-
+            type=ref,event=tag
+
+      - name: Build and push j2me-deps
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.deps
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  build-j2me-env:
+    runs-on: ubuntu-24.04
+    needs:
+      - prepare
+      - build-deps
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract j2me-env metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ needs.prepare.outputs.env_image }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=sha-
+            type=ref,event=tag
+
+      - name: Build and push j2me-env
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: true
+          build-args: |
+            DEPS_IMAGE=${{ needs.prepare.outputs.deps_image }}:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
