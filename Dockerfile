@@ -1,4 +1,4 @@
-ARG DEPS_IMAGE
+ARG DEPS_IMAGE=j2me-deps:local
 FROM ${DEPS_IMAGE} AS deps
 
 FROM ubuntu:24.04
