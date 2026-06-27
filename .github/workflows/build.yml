@@ -73,6 +73,7 @@ jobs:
           file: ./Dockerfile.deps
           platforms: linux/amd64
           push: true
+          provenance: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=j2me-deps
@@ -115,6 +116,7 @@ jobs:
           file: ./Dockerfile
           platforms: linux/amd64
           push: true
+          provenance: true
           build-args: |
             DEPS_IMAGE=${{ needs.prepare.outputs.deps_image }}:latest
           tags: ${{ steps.meta.outputs.tags }}
