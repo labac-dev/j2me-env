@@ -72,6 +72,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   build-j2me-env:
     runs-on: ubuntu-24.04
@@ -111,3 +113,5 @@ jobs:
             DEPS_IMAGE=${{ needs.prepare.outputs.deps_image }}:latest
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
