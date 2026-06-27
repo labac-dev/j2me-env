@@ -1,0 +1,26 @@
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+ARG ANT_VERSION=1.9.16
+
+RUN apt-get update && \
+    apt-get install -y \
+        ca-certificates \
+        wget \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /deps
+
+RUN wget -q -O /deps/apache-ant-${ANT_VERSION}-bin.tar.gz \
+    "https://archive.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz"
+
+RUN wget -q -O /deps/jdk-6u45-linux-i586.bin \
+    "https://repo.huaweicloud.com/java/jdk/6u45-b06/jdk-6u45-linux-i586.bin"
+
+RUN wget -q --no-cookies --no-check-certificate \
+      --header "Cookie: oraclelicense=accept-securebackup-cookie" \
+      -O /deps/sun_java_wireless_toolkit-2.5.2_01-linuxi486.bin.sh \
+      "https://download.oracle.com/otn-pub/java/sun_java_wireless_toolkit/2.5.2_01/sun_java_wireless_toolkit-2.5.2_01-linuxi486.bin.sh"
+
+CMD ["/bin/bash"]
