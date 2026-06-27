@@ -34,8 +34,8 @@ jobs:
 
           echo "owner_lc=${OWNER_LC}" >> "${GITHUB_OUTPUT}"
           echo "repo_lc=${REPO_LC}" >> "${GITHUB_OUTPUT}"
-          echo "deps_image=${{ env.REGISTRY }}/${OWNER_LC}/${REPO_LC}-j2me-deps" >> "${GITHUB_OUTPUT}"
-          echo "env_image=${{ env.REGISTRY }}/${OWNER_LC}/${REPO_LC}-j2me-env" >> "${GITHUB_OUTPUT}"
+          echo "deps_image=${{ env.REGISTRY }}/${OWNER_LC}/${REPO_LC}-deps" >> "${GITHUB_OUTPUT}"
+          echo "env_image=${{ env.REGISTRY }}/${OWNER_LC}/${REPO_LC}" >> "${GITHUB_OUTPUT}"
 
   build-deps:
     runs-on: ubuntu-24.04
