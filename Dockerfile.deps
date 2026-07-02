@@ -23,4 +23,7 @@ RUN wget -q --no-cookies --no-check-certificate \
       -O /deps/sun_java_wireless_toolkit-2.5.2_01-linuxi486.bin.sh \
       "https://download.oracle.com/otn-pub/java/sun_java_wireless_toolkit/2.5.2_01/sun_java_wireless_toolkit-2.5.2_01-linuxi486.bin.sh"
 
+RUN wget -q -O /deps/proguard-4.4.jar \
+    "https://repo1.maven.org/maven2/net/sf/proguard/proguard/4.4/proguard-4.4.jar"
+
 CMD ["/bin/bash"]
