@@ -33,6 +33,7 @@ RUN dpkg --add-architecture i386 && \
 ENV JAVA_HOME=/opt/jdk
 ENV WTK_HOME=/opt/wtk
 ENV ANT_HOME=/opt/ant
+ENV PROGUARD_HOME=/opt/proguard
 ENV PATH="${JAVA_HOME}/bin:${WTK_HOME}/bin:${ANT_HOME}/bin:${PATH}"
 
 ARG ANT_VERSION=1.9.16
@@ -55,6 +56,10 @@ RUN set -ex \
     && tail -c +26625 /deps/sun_java_wireless_toolkit-2.5.2_01-linuxi486.bin.sh > /tmp/wtk.zip \
     && unzip -q /tmp/wtk.zip -d ${WTK_HOME}/ \
     && rm /tmp/wtk.zip
+
+RUN set -ex \
+    && mkdir -p ${PROGUARD_HOME} \
+    && cp /deps/proguard-4.4.jar ${PROGUARD_HOME}/proguard-4.4.jar
 
 RUN echo '#!/bin/bash\n\
 if [ -f "build.xml" ]; then\n\
